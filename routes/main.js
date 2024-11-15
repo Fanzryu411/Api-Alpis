@@ -2,7 +2,7 @@ __path = process.cwd()
 
 var express = require('express');
 var router = express.Router();
-const { runtime,fetchJson } = require('../lib/myfunct')
+const { runtime,fetchJson } = require('../lib/myfunc')
 
 router.get('/', (req, res) => {
     res.sendFile(__path + '/view/home.html')
