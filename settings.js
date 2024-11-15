@@ -4,7 +4,7 @@ const express = require('express');
 //_______________________ ┏  Info  ┓ _______________________\\
 const creator = 'Fanz';  // Nama Creator
 //port = 8080 //port host
-const port = process.env.PORT || 8080;  // Port untuk menjalankan server (default: 8080)
+const PORT = process.env.PORT || 8080 || 5000 || 3000
 const LimitApikey = 200;  // Limit Apikey default
 
 //_______________________ ┏  Loghandler  ┓ _______________________\\
