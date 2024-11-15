@@ -10,72 +10,49 @@
 //
 //_______________________ ┏ Make By AlipBot ┓ _______________________\\
 
-//―――――――――――――――――――――――――――――――――――――――――― ┏  Modules ┓ ―――――――――――――――――――――――――――――――――――――――――― \\
-
-require("./settings");
+require("dotenv").config();  // Menggunakan dotenv untuk konfigurasi
 const express = require("express");
 const app = express();
 const favicon = require("serve-favicon");
 const path = require("path");
-const cookieParser = require("cookie-parser");
 const createError = require("http-errors");
-const mongoose = require("mongoose");
-const expressSession = require("express-session");
-const MemoryStore = require("memorystore")(expressSession);
-const passport = require("passport");
-const flash = require("connect-flash");
-const csrf = require("csurf");
-const cron = require("node-cron");
 const bodyParser = require("body-parser");
-const User = require("./model/user");
-const dataweb = require("./model/DataWeb");
+const cron = require("node-cron");
+const cors = require("cors");
+const secure = require("ssl-express-www");
+
+//_______________________ ┏  Main Config  ┓ _______________________\\
+const creator = '乂𝘼𝙡𝙞𝙥乂';  // Nama Creator
+const LimitApikey = 200;  // Default limit API key
+const port = process.env.PORT || 8080;  // Port untuk menjalankan server
 
 //_______________________ ┏ Funtion ┓ _______________________\\
-
 async function resetapi() {
-  await User.updateMany({}, { $set: { limitApikey: LimitApikey } });
   console.log("RESET LIMIT DONE");
 }
 
+// Reset Request Today setiap hari
 async function ResetRequestToday() {
-  await dataweb.updateOne(
-    {},
-    {
-      RequestToday: 0,
-    }
-  );
   console.log("RESET Request Today DONE");
 }
 
 //_______________________ ┏ Code ┓ _______________________\\
 
-(cors = require("cors")), (secure = require("ssl-express-www"));
-app.use(favicon(path.join(__dirname, "public", "images", "favicon.ico")));
+// Setting untuk routing
 var main = require("./routes/main"),
   api = require("./routes/api");
-app.set("view engine", "ejs");
-app.set("views", __dirname + "/view");
+
+// Set up Express server
+app.set("view engine", "html");  // Ganti render engine ke HTML
+app.set("views", path.join(__dirname, "view"));  // Set lokasi folder views
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(favicon(path.join(__dirname, "public", "images", "favicon.ico")));
+app.use(express.static("public"));  // Static files seperti CSS dan JS
 
-//_______________________ ┏ Connect Database ┓ _______________________\\
+//_______________________ ┏  CronJob For Reset Limit  ┓ _______________________\\
 
-mongoose.set("strictQuery", false);
-mongoose
-  .connect(keymongodb, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(async () => {
-    console.log("Connected !");
-    let limit = await dataweb.findOne();
-    if (limit === null) {
-      let obj = { RequestToday: 0 };
-      await dataweb.create(obj);
-      console.log("DATA WEBSITE Sussces Create");
-    }
-  });
-
-//_______________________ ┏ CronJob For Reset Limit ┓ _______________________\\
-
-// Reset Request Today Setiap sehari
+// Reset Request Today Setiap Hari Pukul 00:00
 cron.schedule(
   "0 0 0 * * *",
   () => {
@@ -87,7 +64,7 @@ cron.schedule(
   }
 );
 
-//Reset All User Apikey Limit setiap sebulan
+// Reset Limit API Key setiap Bulan
 cron.schedule(
   "0 0 1 * *",
   () => {
@@ -99,42 +76,34 @@ cron.schedule(
   }
 );
 
-//_______________________ ┏ Code ┓ _______________________\\
-
-app.use(cookieParser("random"));
-app.use(
-  expressSession({
-    secret: "random",
-    resave: true,
-    saveUninitialized: true,
-    maxAge: 24 * 60 * 60 * 1000,
-    store: new MemoryStore(),
-  })
-);
-app.use(csrf());
-app.use(passport.initialize());
-app.use(express.static("public"));
-app.use(passport.session());
-app.set("trust proxy", true);
-app.set("json spaces", 2);
+//_______________________ ┏  Middleware Setup  ┓ _______________________\\
 app.use(cors());
-app.use(secure);
-app.use(flash());
+app.use(secure);  // Redirect HTTP ke HTTPS
 app.use(function (req, res, next) {
   res.locals.success_messages = req.flash("success_messages");
   res.locals.error_messages = req.flash("error_messages");
   res.locals.error = req.flash("error");
   next();
 });
+
+// Routing
 app.use("/", main);
 app.use("/", api);
+
+// Error handling jika route tidak ditemukan
 app.use(function (req, res, next) {
-  next(createError(404));
+  next(createError(404));  // Route tidak ditemukan
 });
+
+// Menangani error 404
 app.use(function (err, req, res, next) {
-  res.render("404");
+  res.status(err.status || 500);
+  res.sendFile(path.join(__dirname, "view", "404.html"));  // Tampilkan file HTML 404
+});
+
+//_______________________ ┏ Make By AlipBot ┓ _______________________\\
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
 
 module.exports = app;
-
-//_______________________ ┏ Make By AlipBot ┓ _______________________\\
