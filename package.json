@@ -10,8 +10,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "start": "node server.js",
-    "node": "nodemon server.js"
+    "start": "node index.js",
+    "node": "nodemon index.js"
   },
   "repository": {
     "type": "git",
