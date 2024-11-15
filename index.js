@@ -24,7 +24,7 @@ const secure = require("ssl-express-www");
 //_______________________ ┏  Main Config  ┓ _______________________\\
 const creator = '乂𝘼𝙡𝙞𝙥乂';  // Nama Creator
 const LimitApikey = 200;  // Default limit API key
-const port = process.env.PORT || 8080;  // Port untuk menjalankan server
+const PORT = process.env.PORT || 8080 || 5000 || 3000
 
 //_______________________ ┏ Funtion ┓ _______________________\\
 async function resetapi() {
