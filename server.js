@@ -3,8 +3,7 @@ const http = require("http");
 const app = require("./index");
 
 // Gunakan PORT yang disediakan oleh Heroku atau port default
-const port = process.env.PORT || 8080;
-
+const PORT = process.env.PORT || 8080 || 5000 || 3000
 const server = http.createServer(app);
 
 // Menangani kesalahan port yang sudah digunakan
